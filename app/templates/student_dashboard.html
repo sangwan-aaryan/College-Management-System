@@ -1,0 +1,125 @@
+{% extends "_layout.html" %}
+
+{% block title %}Student Dashboard - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Welcome Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Hello, {{ current_user.name }}! 👋</h1>
+                <p class="text-blue-100 text-lg">Course: {{ student_data.course_name }}</p>
+            </div>
+            <div class="mt-6 md:mt-0 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                <p class="text-xs text-blue-200 uppercase tracking-wider font-semibold">Student ID</p>
+                <p class="text-2xl font-bold font-mono">{{ current_user.user_id }}</p>
+            </div>
+        </div>
+        <div class="absolute -bottom-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Attendance Chart -->
+        <div class="glass-card p-6 flex flex-col">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Attendance Overview</h2>
+            <div class="flex-1 relative flex justify-center min-h-[250px]">
+                <canvas id="attChart"></canvas>
+            </div>
+            <div class="text-center mt-4">
+                <span class="text-3xl font-bold text-gray-800">
+                    {{ "%.0f"|format(attendance_data.present / attendance_data.total * 100) if attendance_data.total > 0 else 0 }}%
+                </span>
+                <span class="text-gray-500 text-sm block">Overall Attendance</span>
+            </div>
+        </div>
+
+        <!-- Marks Chart -->
+        <div class="glass-card p-6 flex flex-col">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Performance</h2>
+            <div class="flex-1 relative min-h-[250px]">
+                <canvas id="marksChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="{{ url_for('view_attendance') }}" class="glass-card p-6 hover:-translate-y-1 transition-all border-l-4 border-blue-500 group">
+             <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <i class="ph-bold ph-list-checks text-2xl"></i>
+                </div>
+                <i class="ph-bold ph-arrow-right text-gray-300 group-hover:text-blue-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Full Attendance</h3>
+            <p class="text-sm text-gray-500 mt-1">View daily logs</p>
+        </a>
+
+        <a href="{{ url_for('view_results') }}" class="glass-card p-6 hover:-translate-y-1 transition-all border-l-4 border-indigo-500 group">
+            <div class="flex items-center justify-between mb-4">
+                 <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                    <i class="ph-bold ph-exam text-2xl"></i>
+                </div>
+                <i class="ph-bold ph-arrow-right text-gray-300 group-hover:text-indigo-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Report Card</h3>
+            <p class="text-sm text-gray-500 mt-1">View all marks</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Attendance Doughnut
+    const attData = {{ attendance_data | tojson }};
+    new Chart(document.getElementById('attChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [attData.present, attData.absent],
+                backgroundColor: ['#3b82f6', '#cbd5e1'],
+                borderWidth: 0,
+                hoverOffset: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+
+    // 2. Marks Bar
+    const marksLabels = {{ stats.marks_labels | tojson }};
+    const marksValues = {{ stats.marks_values | tojson }};
+
+    new Chart(document.getElementById('marksChart'), {
+        type: 'bar',
+        data: {
+            labels: marksLabels,
+            datasets: [{
+                label: 'Marks',
+                data: marksValues,
+                backgroundColor: '#6366f1',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100, grid: { borderDash: [4, 4] } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+});
+</script>
+{% endblock %}

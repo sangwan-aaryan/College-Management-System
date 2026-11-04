@@ -1,0 +1,93 @@
+{% extends "_layout.html" %}
+
+{% block title %}Manage Subjects - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Subjects Directory</h1>
+            <p class="text-sm text-gray-500 mt-1">Manage curriculum and faculty assignments.</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <a href="{{ url_for('add_subject') }}" class="primary-btn flex items-center gap-2">
+                <i class="ph-bold ph-plus"></i>
+                Add New Subject
+            </a>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="table-header pl-6">Subject Details</th>
+                        <th scope="col" class="table-header">Department (Course)</th>
+                        <th scope="col" class="table-header">Assigned Faculty</th>
+                        <th scope="col" class="table-header text-right pr-6">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    {% if subjects %}
+                        {% for subject in subjects %}
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="table-cell pl-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-lg bg-amber-100 text-amber-600 flex-shrink-0 flex items-center justify-center">
+                                        <i class="ph-bold ph-book-bookmark text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-semibold text-gray-900">{{ subject.subject_name }}</div>
+                                        <div class="text-xs text-gray-400 font-mono mt-0.5">{{ subject.subject_id }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="table-cell">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">
+                                    {{ subject.course_name or 'Unassigned' }}
+                                </span>
+                            </td>
+                            <td class="table-cell">
+                                {% if subject.teacher_name %}
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs mr-2">
+                                            {{ subject.teacher_name[0]|upper }}
+                                        </div>
+                                        {{ subject.teacher_name }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-400 italic text-sm">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td class="table-cell text-right pr-6">
+                                <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <a href="{{ url_for('edit_subject', subject_id=subject.subject_id) }}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                        <i class="ph-bold ph-pencil-simple text-lg"></i>
+                                    </a>
+
+                                    <!-- FIX: Use a FORM for Delete -->
+                                    <form action="{{ url_for('delete_subject', subject_id=subject.subject_id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this subject?');">
+                                        <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                            <i class="ph-bold ph-trash text-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center px-6 py-16">
+                                <p class="text-gray-500">No subjects found. Add one to get started.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

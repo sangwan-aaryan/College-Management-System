@@ -1,0 +1,44 @@
+{% extends "_layout.html" %}
+
+{% block title %}About - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">
+        About This Project
+    </h1>
+
+    <div class="space-y-6 text-gray-700 leading-relaxed">
+        <p>
+            This <strong class="font-semibold text-gray-900">College Management System (CMS)</strong> is a full-stack web application built using Python, Flask, and MySQL. It is designed to demonstrate a complete, database-driven application with multiple user roles and permissions.
+        </p>
+
+        <h2 class="text-2xl font-semibold text-gray-800 pt-4 border-t mt-8">
+            Core Features
+        </h2>
+        <ul class="list-disc list-inside space-y-2">
+            <li><strong>Three User Roles:</strong> Admin, Teacher, and Student, each with a unique dashboard and set of permissions.</li>
+            <li><strong>Admin Panel:</strong> Full CRUD (Create, Read, Update, Delete) functionality for managing Students, Teachers, Courses, and Subjects.</li>
+            <li><strong>Faculty Portal:</strong> Teachers can mark daily attendance and submit student marks for their assigned subject.</li>
+            <li><strong>Student Dashboard:</strong> Students can view their personal profile, check detailed attendance records, and see their final results/grades.</li>
+            <li><strong>Dynamic Dashboards:</strong> Statistical summaries (total students, faculty, etc.) and charts (attendance percentage, grade distribution) powered by Chart.js.</li>
+            <li><strong>Session Management:</strong> Secure login/logout functionality using Flask-Login to manage user sessions.</li>
+        </ul>
+
+        <h2 class="text-2xl font-semibold text-gray-800 pt-4 border-t mt-8">
+            Technology Stack
+        </h2>
+        <ul class="list-disc list-inside space-y-2">
+            <li><strong>Backend:</strong> Python with the Flask web framework.</li>
+            <li><strong>Database:</strong> MySQL (connected via Flask-MySQLdb).</li>
+            <li><strong>Frontend:</strong> HTML5, Tailwind CSS (for styling), and JavaScript.</li>
+            <li><strong>Authentication:</strong> Flask-Login for handling user sessions and authentication.</li>
+            <li><strong>Visualizations:</strong> Chart.js for rendering charts on the dashboards.</li>
+        </ul>
+
+        <p class="pt-4 border-t mt-8">
+            This project is organized as a Flask application package, with route modules, reusable forms and services, database configuration, templates, and static assets kept together under `app/`.
+        </p>
+    </div>
+</div>
+{% endblock %}

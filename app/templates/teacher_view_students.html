@@ -1,0 +1,60 @@
+{% extends "_layout.html" %}
+
+{% block title %}My Students - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">My Students</h1>
+        <a href="{{ url_for('dashboard') }}" class="secondary-btn">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="table-header">Student ID</th>
+                        <th scope="col" class="table-header">Name</th>
+                        <th scope="col" class="table-header">Email</th>
+                        <th scope="col" class="table-header text-center">Attendance</th>
+                        <th scope="col" class="table-header text-center">Marks</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for student in students %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="table-cell font-medium text-gray-900">{{ student.student_id }}</td>
+                        <td class="table-cell">{{ student.name }}</td>
+                        <td class="table-cell text-gray-500">{{ student.email }}</td>
+                        <td class="table-cell text-center">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if student.attendance >= 75 %} bg-green-100 text-green-800
+                                {% elif student.attendance >= 50 %} bg-yellow-100 text-yellow-800
+                                {% else %} bg-red-100 text-red-800 {% endif %}">
+                                {{ student.attendance }}%
+                            </span>
+                        </td>
+                        <td class="table-cell text-center font-medium">
+                            {% if student.marks != 'N/A' %}
+                                {{ student.marks }}
+                            {% else %}
+                                <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                            No students found in your assigned course.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

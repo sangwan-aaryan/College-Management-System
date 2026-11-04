@@ -1,0 +1,49 @@
+{% extends "_layout.html" %}
+
+{% block title %}{{ 'Edit' if is_edit_mode else 'Add' }} Course - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8">
+        <a href="{{ url_for('view_courses') }}" class="text-sm text-gray-500 hover:text-gray-700 mb-2 inline-flex items-center transition-colors">
+            <i class="ph-bold ph-arrow-left mr-2"></i> Back to Courses
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900">
+            {% if is_edit_mode %}
+                Edit Course
+            {% else %}
+                Create New Course
+            {% endif %}
+        </h1>
+    </div>
+
+    <div class="glass-card p-8 border-t-4 border-violet-500">
+        <form method="POST" action="" class="space-y-6">
+            {{ form.hidden_tag() }}
+
+            <!-- Course ID -->
+            <div>
+                <label for="course_id" class="form-label">Course ID / Code</label>
+                {{ form.course_id(class="form-input font-mono" + (" bg-gray-50 text-gray-500" if is_edit_mode else ""), placeholder="e.g., CSE-2024", readonly=is_edit_mode) }}
+                {% for error in form.course_id.errors %}
+                    <p class="text-red-500 text-xs mt-1 flex items-center"><i class="ph-bold ph-warning-circle mr-1"></i> {{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <!-- Course Name -->
+            <div>
+                <label for="course_name" class="form-label">Course Name</label>
+                {{ form.course_name(class="form-input", placeholder="e.g., Computer Science & Engineering") }}
+                {% for error in form.course_name.errors %}
+                    <p class="text-red-500 text-xs mt-1 flex items-center"><i class="ph-bold ph-warning-circle mr-1"></i> {{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-gray-100 flex justify-end gap-3">
+                <a href="{{ url_for('view_courses') }}" class="secondary-btn">Cancel</a>
+                {{ form.submit(class="primary-btn cursor-pointer shadow-lg shadow-violet-500/30 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

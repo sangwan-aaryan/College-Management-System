@@ -1,0 +1,71 @@
+{% extends "_layout.html" %}
+
+{% block title %}Notice Board - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Notice Board</h1>
+            <p class="text-sm text-gray-500 mt-1">Latest announcements and updates.</p>
+        </div>
+        {% if current_user.role == 'admin' %}
+        <div class="mt-4 md:mt-0">
+            <a href="{{ url_for('add_notice') }}" class="primary-btn flex items-center gap-2">
+                <i class="ph-bold ph-plus"></i>
+                Post New Notice
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% if notices %}
+            {% for notice in notices %}
+            <div class="glass-card flex flex-col h-full relative group">
+                <!-- Top colored bar -->
+                <div class="h-2 w-full bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+
+                <div class="p-6 flex-1 flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-wide">Announcement</span>
+                        {% if current_user.role == 'admin' %}
+
+                        <form method="POST" action="{{ url_for('delete_notice', notice_id=notice.notice_id) }}"
+                              onsubmit="return confirm('Delete this notice?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit"
+                                    class="text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                    aria-label="Delete notice">
+                                <i class="ph-bold ph-trash text-lg"></i>
+                            </button>
+                        </form>
+
+                        {% endif %}
+                    </div>
+
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{{ notice.title }}</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-4 flex-1">
+                        {{ notice.content }}
+                    </p>
+
+                    <div class="flex items-center text-xs text-gray-400 pt-4 border-t border-gray-100 mt-auto">
+                        <i class="ph-fill ph-calendar-blank mr-2"></i>
+                        {{ notice.date_posted.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full bg-white rounded-2xl p-12 text-center border border-gray-200 border-dashed">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-50 mb-4">
+                    <i class="ph ph-megaphone-simple text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900">No Notices Yet</h3>
+                <p class="text-gray-500">Check back later for updates.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

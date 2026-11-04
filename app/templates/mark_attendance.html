@@ -1,0 +1,78 @@
+{% extends "_layout.html" %}
+
+{% block title %}Mark Attendance - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Mark Attendance</h1>
+    <a href="{{ url_for('dashboard') }}" class="secondary-btn">
+        &larr; Back to Dashboard
+    </a>
+</div>
+
+<div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="flex justify-between items-center mb-6 pb-6 border-b border-gray-200">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800">Subject: {{ subject.subject_name or 'N/A' }}</h2>
+                <p class="text-gray-600">Date: {{ today }}</p>
+            </div>
+            <div>
+                {{ form.submit(class="primary-btn") }}
+            </div>
+        </div>
+
+        {% if students %}
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="table-header">Student ID</th>
+                        <th class="table-header">Student Name</th>
+                        <th class="table-header text-center">Status (Present/Absent)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for student in students %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="table-cell">{{ student.user_id }}</td>
+                        <td class="table-cell font-medium text-gray-800">{{ student.name }}</td>
+                        <td class="table-cell">
+                            <!-- This uses Flask-WTF forms. 'form.students' is a FieldList of FormFields -->
+                            <!-- We find the matching sub-form by index -->
+                            {% for student_form in form.students %}
+                                {% if student_form.student_id.data == student.user_id %}
+                                    <!-- Hide the hidden student_id field -->
+                                    {{ student_form.student_id(class="hidden") }}
+
+                                    <div class="flex items-center justify-center space-x-4">
+                                        <label class="flex items-center cursor-pointer">
+                                            {{ student_form.status(value='Present', class="form-radio", checked=student.status=='Present') }}
+                                            <span class="ml-2 text-green-600 font-medium">Present</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer">
+                                            {{ student_form.status(value='Absent', class="form-radio", checked=student.status=='Absent') }}
+                                            <span class="ml-2 text-red-600 font-medium">Absent</span>
+                                        </label>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-10">
+            <p class="text-gray-500">No students are enrolled in this subject.</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-8 pt-6 border-t border-gray-200 text-right">
+            {{ form.submit(class="primary-btn") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

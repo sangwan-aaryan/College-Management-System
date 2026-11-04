@@ -1,0 +1,8 @@
+Flask
+Flask-MySQLdb
+Flask-Login
+Flask-WTF
+pandas
+openpyxl
+email-validator
+python-dotenv

@@ -1,0 +1,175 @@
+{% extends "_layout.html" %}
+
+{% block title %}Teacher Dashboard - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="relative bg-gradient-to-r from-teal-600 to-cyan-600 rounded-3xl p-8 md:p-12 shadow-2xl overflow-hidden text-white">
+        <div class="relative z-10">
+            <h1 class="text-4xl font-bold mb-2">Welcome, {{ teacher_data.name }}!</h1>
+            <p class="text-teal-100 text-lg">Classroom Analytics & Management</p>
+
+            <div class="mt-8 flex flex-wrap gap-4">
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 min-w-[180px]">
+                    <p class="text-xs text-teal-200 uppercase tracking-wider font-semibold mb-1">Subject</p>
+                    <p class="text-xl font-bold">{{ teacher_data.subject_name or 'None' }}</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 min-w-[180px]">
+                    <p class="text-xs text-teal-200 uppercase tracking-wider font-semibold mb-1">Course</p>
+                    <p class="text-xl font-bold">{{ teacher_data.course_name or 'None' }}</p>
+                </div>
+                 <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+                    <p class="text-xs text-teal-200 uppercase tracking-wider font-semibold mb-1">ID</p>
+                    <p class="text-xl font-mono">{{ teacher_data.teacher_id }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/10 rounded-full blur-3xl opacity-50"></div>
+    </div>
+
+    <!-- CHARTS ROW -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Attendance Chart -->
+        <div class="glass-card p-6 flex flex-col">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Today's Attendance</h2>
+            <div class="flex-1 relative flex justify-center items-center min-h-[250px]">
+                <!-- Canvas is always rendered to prevent JS errors -->
+                <canvas id="attChart" class="z-10"></canvas>
+
+                <!-- Fallback message (Hidden by default, shown via JS if data is empty) -->
+                <div id="attChartFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0">
+                    <i class="ph-duotone ph-calendar-x text-4xl mb-2"></i>
+                    <p>No attendance marked for today.</p>
+                    <a href="{{ url_for('mark_attendance') }}" class="text-teal-600 hover:underline text-sm mt-1 inline-block">Mark Now</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grades Chart -->
+        <div class="glass-card p-6 flex flex-col">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Grade Distribution</h2>
+            <div class="flex-1 relative flex justify-center items-center min-h-[250px]">
+                <!-- Canvas is always rendered -->
+                <canvas id="gradeChart" class="z-10"></canvas>
+
+                <!-- Fallback message -->
+                <div id="gradeChartFallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-gray-400 z-0">
+                    <i class="ph-duotone ph-chart-bar text-4xl mb-2"></i>
+                    <p>No marks uploaded yet.</p>
+                    <a href="{{ url_for('add_marks') }}" class="text-purple-600 hover:underline text-sm mt-1 inline-block">Upload Marks</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="{{ url_for('mark_attendance') }}" class="glass-card p-6 hover:-translate-y-1 transition-all border-l-4 border-blue-500 group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <i class="ph-bold ph-calendar-check text-2xl"></i>
+                </div>
+                <i class="ph-bold ph-arrow-right text-gray-300 group-hover:text-blue-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Mark Attendance</h3>
+            <p class="text-sm text-gray-500 mt-1">Record daily presence</p>
+        </a>
+
+        <a href="{{ url_for('add_marks') }}" class="glass-card p-6 hover:-translate-y-1 transition-all border-l-4 border-purple-500 group">
+            <div class="flex items-center justify-between mb-4">
+                 <div class="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <i class="ph-bold ph-exam text-2xl"></i>
+                </div>
+                <i class="ph-bold ph-arrow-right text-gray-300 group-hover:text-purple-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Upload Marks</h3>
+            <p class="text-sm text-gray-500 mt-1">Grade students</p>
+        </a>
+
+        <a href="{{ url_for('view_my_students') }}" class="glass-card p-6 hover:-translate-y-1 transition-all border-l-4 border-emerald-500 group">
+            <div class="flex items-center justify-between mb-4">
+                 <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <i class="ph-bold ph-users-three text-2xl"></i>
+                </div>
+                <i class="ph-bold ph-arrow-right text-gray-300 group-hover:text-emerald-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">My Students</h3>
+            <p class="text-sm text-gray-500 mt-1">View full list</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Attendance Pie Logic
+    const attCanvas = document.getElementById('attChart');
+    const attLabels = {{ stats.att_labels | tojson }};
+    const attData = {{ stats.att_data | tojson }};
+    const attTotal = attData.reduce((a, b) => a + b, 0);
+
+    if (attTotal > 0) {
+        new Chart(attCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: attLabels,
+                datasets: [{
+                    data: attData,
+                    backgroundColor: ['#10b981', '#ef4444'],
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    } else {
+        // Hide canvas, show fallback
+        attCanvas.style.display = 'none';
+        document.getElementById('attChartFallback').classList.remove('hidden');
+    }
+
+    // 2. Grades Bar Logic
+    const gradeCanvas = document.getElementById('gradeChart');
+    const gradeLabels = {{ stats.grade_labels | tojson }};
+    const gradeData = {{ stats.grade_data | tojson }};
+    const gradeTotal = gradeData.reduce((a, b) => a + b, 0);
+
+    if (gradeTotal > 0) {
+        new Chart(gradeCanvas, {
+            type: 'bar',
+            data: {
+                labels: gradeLabels,
+                datasets: [{
+                    label: 'Students',
+                    data: gradeData,
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [4, 4] } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    } else {
+        // Hide canvas, show fallback
+        gradeCanvas.style.display = 'none';
+        document.getElementById('gradeChartFallback').classList.remove('hidden');
+    }
+});
+</script>
+{% endblock %}

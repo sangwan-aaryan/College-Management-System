@@ -1,0 +1,91 @@
+{% extends "_layout.html" %}
+
+{% block title %}{{ 'Edit' if form.student_id.data else 'Add' }} Student - {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <a href="{{ url_for('view_students') }}" class="text-sm text-gray-500 hover:text-gray-700 mb-2 inline-flex items-center transition-colors">
+            <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Back to Students
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900">
+            {% if form.student_id.data %}
+                Edit Student
+                <span class="text-gray-400 font-normal text-lg ml-2">#{{ form.student_id.data }}</span>
+            {% else %}
+                Register New Student
+            {% endif %}
+        </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div class="p-8">
+            <form method="POST" action="" class="space-y-6">
+                {{ form.hidden_tag() }}
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <div>
+                            <label for="student_id" class="form-label">Student ID</label>
+                            {{ form.student_id(class="form-input" + (" bg-gray-50" if is_edit_mode else ""), placeholder="e.g., s001", readonly=is_edit_mode) }}
+                            {% for error in form.student_id.errors %}
+                                <p class="text-red-500 text-xs mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
+                            {% if not is_edit_mode %}
+                                <p class="text-xs text-gray-400 mt-1 ml-1">Must be unique.</p>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="name" class="form-label">Full Name</label>
+                            {{ form.name(class="form-input", placeholder="e.g., Rohan Verma") }}
+                            {% for error in form.name.errors %}
+                                <p class="text-red-500 text-xs mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            <label for="email" class="form-label">Email Address</label>
+                            {{ form.email(class="form-input", placeholder="e.g., student@college.edu") }}
+                            {% for error in form.email.errors %}
+                                <p class="text-red-500 text-xs mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                         <div>
+                            <label for="course_id" class="form-label">Enrolled Course</label>
+                            {{ form.course_id(class="form-select") }}
+                            {% for error in form.course_id.errors %}
+                                <p class="text-red-500 text-xs mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div>
+                            <label for="dob" class="form-label">Date of Birth</label>
+                            {{ form.dob(class="form-input") }}
+                            {% for error in form.dob.errors %}
+                                <p class="text-red-500 text-xs mt-1 ml-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-6 mt-6 border-t border-gray-100 flex justify-end space-x-3">
+                    <a href="{{ url_for('view_students') }}" class="secondary-btn">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="primary-btn cursor-pointer") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

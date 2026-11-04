@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}College Management System{% endblock %}</title>
+    <!-- Load Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Chart.js for dashboards -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Load custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons (Phosphor Icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        sidebar: '#0f172a', // Slate 900
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-slate-800 antialiased overflow-hidden">
+
+    <div class="flex h-screen">
+
+        <!-- Modern Sidebar -->
+        {% if current_user.is_authenticated %}
+        <aside class="w-72 bg-[#0f172a] text-white flex flex-col shadow-2xl z-50 transition-all duration-300 relative overflow-hidden">
+            <!-- Decorative blurred circle in background -->
+            <div class="absolute top-0 left-0 w-full h-64 bg-indigo-600 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+
+            <!-- Logo / Brand -->
+            <div class="p-6 flex items-center gap-3 z-10 border-b border-slate-800/50">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <i class="ph ph-graduation-cap text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">CMS Portal</h1>
+                    <p class="text-xs text-slate-400 font-medium">Academic Suite</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex-1 overflow-y-auto px-4 py-6 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 z-10">
+
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-3 mt-2">Overview</div>
+
+                <a href="{{ url_for('dashboard') }}" class="sidebar-link {{ 'active' if request.endpoint == 'dashboard' }}">
+                    <i class="ph ph-squares-four text-lg"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Admin Links -->
+                {% if current_user.role == 'admin' %}
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-3 mt-8">Management</div>
+
+                    <!-- Students Group -->
+                    <div class="space-y-1">
+                        <a href="{{ url_for('view_students') }}" class="sidebar-link {{ 'active' if 'student' in request.endpoint and 'import' not in request.endpoint }}">
+                            <i class="ph ph-student text-lg"></i>
+                            <span>Students</span>
+                        </a>
+                        <!-- Sub-link for Import -->
+                        <a href="{{ url_for('import_students') }}" class="flex items-center pl-12 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors relative group {{ 'text-white' if 'import_students' in request.endpoint }}">
+                            <div class="absolute left-[2.25rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 h-full"></div>
+                            <i class="ph ph-arrow-elbow-down-right mr-2"></i>
+                            Import Students
+                        </a>
+                    </div>
+
+                    <!-- Faculty Group -->
+                    <div class="space-y-1 mt-2">
+                        <a href="{{ url_for('view_teachers') }}" class="sidebar-link {{ 'active' if 'teacher' in request.endpoint and 'import' not in request.endpoint }}">
+                            <i class="ph ph-chalkboard-teacher text-lg"></i>
+                            <span>Faculty</span>
+                        </a>
+                        <a href="{{ url_for('import_teachers') }}" class="flex items-center pl-12 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors relative group {{ 'text-white' if 'import_teachers' in request.endpoint }}">
+                            <div class="absolute left-[2.25rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 h-full"></div>
+                            <i class="ph ph-arrow-elbow-down-right mr-2"></i>
+                            Import Faculty
+                        </a>
+                    </div>
+
+                    <!-- Courses Group -->
+                    <div class="space-y-1 mt-2">
+                        <a href="{{ url_for('view_courses') }}" class="sidebar-link {{ 'active' if 'course' in request.endpoint and 'import' not in request.endpoint }}">
+                            <i class="ph ph-books text-lg"></i>
+                            <span>Courses</span>
+                        </a>
+                         <a href="{{ url_for('import_courses') }}" class="flex items-center pl-12 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors relative group {{ 'text-white' if 'import_courses' in request.endpoint }}">
+                            <div class="absolute left-[2.25rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 h-full"></div>
+                            <i class="ph ph-arrow-elbow-down-right mr-2"></i>
+                            Import Courses
+                        </a>
+                    </div>
+
+                    <!-- Subjects Group -->
+                    <div class="space-y-1 mt-2">
+                        <a href="{{ url_for('view_subjects') }}" class="sidebar-link {{ 'active' if 'subject' in request.endpoint and 'import' not in request.endpoint }}">
+                            <i class="ph ph-book-bookmark text-lg"></i>
+                            <span>Subjects</span>
+                        </a>
+                        <a href="{{ url_for('import_subjects') }}" class="flex items-center pl-12 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors relative group {{ 'text-white' if 'import_subjects' in request.endpoint }}">
+                            <div class="absolute left-[2.25rem] top-0 bottom-0 w-px bg-slate-800 group-hover:bg-slate-700 h-full"></div>
+                            <i class="ph ph-arrow-elbow-down-right mr-2"></i>
+                            Import Subjects
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Teacher Links -->
+                {% if current_user.role == 'teacher' %}
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-3 mt-8">Classroom</div>
+
+                    <a href="{{ url_for('view_my_students') }}" class="sidebar-link {{ 'active' if 'students' in request.endpoint }}">
+                        <i class="ph ph-users-three text-lg"></i>
+                        <span>My Students</span>
+                    </a>
+                    <a href="{{ url_for('mark_attendance') }}" class="sidebar-link {{ 'active' if 'attendance' in request.endpoint }}">
+                        <i class="ph ph-check-circle text-lg"></i>
+                        <span>Attendance</span>
+                    </a>
+                    <a href="{{ url_for('add_marks') }}" class="sidebar-link {{ 'active' if 'marks' in request.endpoint }}">
+                        <i class="ph ph-exam text-lg"></i>
+                        <span>Grades</span>
+                    </a>
+                {% endif %}
+
+                <!-- Student Links -->
+                {% if current_user.role == 'student' %}
+                    <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-3 mt-8">Academic</div>
+
+                    <a href="{{ url_for('view_attendance') }}" class="sidebar-link {{ 'active' if 'attendance' in request.endpoint }}">
+                        <i class="ph ph-calendar-check text-lg"></i>
+                        <span>My Attendance</span>
+                    </a>
+                    <a href="{{ url_for('view_results') }}" class="sidebar-link {{ 'active' if 'results' in request.endpoint }}">
+                        <i class="ph ph-chart-bar text-lg"></i>
+                        <span>My Results</span>
+                    </a>
+                {% endif %}
+
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-3 mt-8">General</div>
+                <a href="{{ url_for('view_notices') }}" class="sidebar-link {{ 'active' if 'notices' in request.endpoint }}">
+                    <i class="ph ph-megaphone text-lg"></i>
+                    <span>Notices</span>
+                </a>
+                <a href="{{ url_for('about') }}" class="sidebar-link {{ 'active' if 'about' in request.endpoint }}">
+                    <i class="ph ph-info text-lg"></i>
+                    <span>About</span>
+                </a>
+            </div>
+
+            <!-- User Profile Footer -->
+            <div class="p-4 border-t border-slate-800 bg-[#0b1120] z-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="h-10 w-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm border-2 border-slate-700">
+                        {{ current_user.name[0]|upper }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-gray-100 truncate">{{ current_user.name }}</p>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider">{{ current_user.role }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    {% if current_user.role in ['student', 'teacher'] %}
+                    <a href="{{ url_for('change_password') }}" class="text-xs text-center py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                        Password
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="text-xs text-center py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-600 hover:text-white transition-colors {{ 'col-span-2' if current_user.role == 'admin' else '' }}">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </aside>
+        {% endif %}
+
+        <!-- Main Content Area -->
+        <main class="flex-1 h-full overflow-y-auto bg-gray-50 scroll-smooth relative">
+             <!-- Flash Messages Overlay -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-96 pointer-events-none">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-xl shadow-lg border-l-4 flex items-start gap-3 animate-bounce-in pointer-events-auto
+                            {% if category == 'success' %} bg-white border-green-500 text-green-800
+                            {% elif category == 'danger' %} bg-white border-red-500 text-red-800
+                            {% else %} bg-white border-blue-500 text-blue-800
+                            {% endif %}"
+                            role="alert">
+                            <i class="ph-fill
+                                {% if category == 'success' %} ph-check-circle text-green-500
+                                {% elif category == 'danger' %} ph-warning-circle text-red-500
+                                {% else %} ph-info text-blue-500 {% endif %} text-xl mt-0.5"></i>
+                            <span class="text-sm font-medium">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="p-8 md:p-12 max-w-7xl mx-auto">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    {% block scripts %}{% endblock %}
+    <style>
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-bounce-in {
+            animation: fadeInDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+    </style>
+</body>
+</html>
